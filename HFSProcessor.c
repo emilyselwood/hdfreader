@@ -63,7 +63,7 @@ int main (int argc, char** argv) {
           check(dsize, "Error got invalid size for attribute %s in section %s\n", atrname, name);
 
           /* allocate space for the attribute */
-          tbuff = HDgetspace(dsize * (count + 1));
+          tbuff = (char*) malloc(dsize * (count + 1));
           if(tbuff == NULL) {
             printf("Error could not allocate space for attribute\n");
             return 1;
@@ -90,9 +90,9 @@ int main (int argc, char** argv) {
       status = SDreaddata(sds_id, start, NULL, dimsizes, data);
       check(status, "Error reading chunk from %s\n", name);
 
-      for (int x = 0; x < dimsizes[0]; x++) {
-        for (int y = 0; y < dimsizes[1]; y++) {
-          char value = data[(x*dimsizes[0])+y];
+      for (int y = 0; y < dimsizes[0]; y++) {
+        for (int x = 0; x < dimsizes[1]; x++) {
+          char value = data[(y*dimsizes[0])+x];
           if (value != fillValue) {
             printf("#");
           } else {
