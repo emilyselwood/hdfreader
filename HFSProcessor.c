@@ -25,9 +25,7 @@ int main (int argc, char** argv) {
   char name[512];
   char atrname[512];
 
-  int32 fillValue;
-  int32 xSize;
-  int32 ySize;
+  int32 fillValue = -1;
 
   //TODO: this should be passed in  some how.
   char * filename = "/home/wselwood/data/real/MYD11A2.A2015009.h22v10.005.2015020130228.hdf";
@@ -54,22 +52,6 @@ int main (int argc, char** argv) {
 
     if (strcmp(name, requiredPart) == 0) {
 
-
-      // Hack: find the number of elements in the dim sizes array that are actually populated.
-      int n = 0;
-      while(dimsizes[n] != 0) {
-        n++;
-      }
-
-      if(n == 2) {
-        xSize = dimsizes[0];
-        ySize = dimsizes[1];
-      }
-      else {
-        printf("Error incorrect number of dimentions %d\n", n);
-        return 1;
-      }
-
       for (int j = 0; j < nattrs; j++) {
         status = SDattrinfo(sds_id, j, atrname, &nt, &count);
         check(status, "Error getting attribute info for %s", name);
@@ -92,36 +74,34 @@ int main (int argc, char** argv) {
         }
       }
 
-      printf("%s x:%d y:%d fillValue:%d\n", name, xSize, ySize, fillValue);
-
-      char* data = (char*) malloc(sizeof(char) * xSize * ySize);
-      if(data == NULL) {
-        printf("ERROR could not allocate data");
+      printf("%s x:%d y:%d fillValue:%d\n", name, dimsizes[0], dimsizes[1], fillValue);
+      if(fillValue == -1) {
+        printf("ERROR fill value not found\n");
         return 1;
       }
-      printf("allocated memory\n");
+      char* data = (char*) malloc(sizeof(char) * dimsizes[0] * dimsizes[1]);
+      if(data == NULL) {
+        printf("ERROR could not allocate data\n");
+        return 1;
+      }
 
-      int32 start[2], edges[2];
+      int32 start[2] = {0, 0};
 
-      start[0] = 0;
-      start[1] = 0;
-      edges[0] = xSize;
-      edges[1] = ySize;
-      status = SDreaddata(sds_id, start, NULL, edges, data);
+      status = SDreaddata(sds_id, start, NULL, dimsizes, data);
       check(status, "Error reading chunk from %s\n", name);
-      printf("read chunk\n");
-      for (int x = 0; x < xSize; x++) {
-        for (int y = 0; y < ySize; y++) {
-          char value = data[(x*xSize)+y];
+
+      for (int x = 0; x < dimsizes[0]; x++) {
+        for (int y = 0; y < dimsizes[1]; y++) {
+          char value = data[(x*dimsizes[0])+y];
           if (value != fillValue) {
-            printf("%d", value);
+            printf("#");
           } else {
             printf(" ");
           }
-
         }
         printf("\n");
       }
+
       free(data);
     }
 
