@@ -13,17 +13,8 @@ void check (int status, char * message, ...) {
   }
 }
 
-char* readHdfBytes(int32 sds_id, int* dimsizes) {
-  char* data = (char*) malloc(sizeof(char) * dimsizes[0] * dimsizes[1]);
-  int32 start[2] = {0, 0};
-
-  int status = SDreaddata(sds_id, start, NULL, dimsizes, data);
-  check(status, "Error reading chunk\n");
-  return data;
-}
-
-short* readHdfShort(int32 sds_id, int* dimsizes) {
-  short* data = (short*) malloc(sizeof(short) * dimsizes[0] * dimsizes[1]);
+void * readHdfData(int32 sds_id, int* dimsizes, int nt) {
+  void * data = (void*) malloc(DFKNTsize(nt) * dimsizes[0] *dimsizes[1]);
   int32 start[2] = {0, 0};
 
   int status = SDreaddata(sds_id, start, NULL, dimsizes, data);
@@ -134,7 +125,7 @@ int main (int argc, char** argv) {
 
 
       if (datatype == 21) { // bytes
-        char * data = readHdfBytes(sds_id, dimsizes);
+        char * data = (char *) readHdfData(sds_id, dimsizes, datatype);
         for (int y = 0; y < dimsizes[0]; y++) {
           for (int x = 0; x < dimsizes[1]; x++) {
             int value = data[(y*dimsizes[0])+x];
@@ -149,7 +140,7 @@ int main (int argc, char** argv) {
 
         free(data);
       } else if (datatype == 22) {
-        short * data = readHdfShort(sds_id, dimsizes);
+        short * data = (short *) readHdfData(sds_id, dimsizes, datatype);
         for (int y = 0; y < dimsizes[0]; y++) {
           for (int x = 0; x < dimsizes[1]; x++) {
             int value = data[(y*dimsizes[0])+x];
