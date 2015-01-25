@@ -3,6 +3,10 @@
 #include <hdf.h>
 #include <stdarg.h>
 #include <strings.h>
+#include <limits.h>
+
+#define BYTE_TYPE 21
+#define SHORT_TYPE 22
 
 void check (int status, char * message, ...) {
   if (status < 0) {
@@ -29,7 +33,7 @@ int readAttrInt(int32 sds_id, int32 nt, int entry, int count, char * atrname, ch
   int32 dsize = DFKNTsize(nt);
   check(dsize, "Error got invalid size for attribute %s in section %s\n", atrname, name);
 
-  if(nt == 21) {
+  if(nt == BYTE_TYPE) {
     char * tbuff = (char*) malloc(dsize * (count + 1));
     if(tbuff == NULL) {
       printf("Error could not allocate space for attribute\n");
@@ -39,7 +43,7 @@ int readAttrInt(int32 sds_id, int32 nt, int entry, int count, char * atrname, ch
     status = SDreadattr(sds_id, entry, tbuff);
     check(status, "Error failed to read attribute %d from %d\n", atrname, name);
     return *tbuff;
-  } else if(nt == 22) {
+  } else if(nt == SHORT_TYPE) {
 
     /* allocate space for the attribute */
     short * tbuff = (short*) malloc(dsize * (count + 1));
@@ -57,6 +61,47 @@ int readAttrInt(int32 sds_id, int32 nt, int entry, int count, char * atrname, ch
     exit(1);
   }
 
+}
+
+void renderData(void * data, int type, int fillValue, int sizeX, int sizeY, int* min, int* max) {
+  char* charData;
+  short* shortData;
+  if (type == BYTE_TYPE) {
+      charData = (char*) data;
+  } else if (type == SHORT_TYPE) {
+    shortData = (short *) data;
+  } else {
+    printf("Error unknown type %d\n", type);
+    exit(1);
+  }
+
+  for (int y = 0; y < sizeY; y++) {
+    for (int x = 0; x < sizeX; x++) {
+      int value;
+      int index = (y*sizeY)+x;
+      if (type == BYTE_TYPE) {
+        value = charData[index] ;
+      } else if (type == SHORT_TYPE) {
+        value = shortData[index];
+      } else {
+        printf("Error unknown type %d\n", type);
+        exit(1);
+      }
+
+      if (value != fillValue) {
+        printf("#");
+      } else {
+        printf(" ");
+      }
+      if (value > *max) {
+        *max = value;
+      }
+      if (value < *min) {
+        *min = value;
+      }
+    }
+    printf("\n");
+  }
 }
 
 int main (int argc, char** argv) {
@@ -123,41 +168,13 @@ int main (int argc, char** argv) {
         return 1;
       }
 
+      int min = INT_MAX;
+      int max = INT_MIN;
+      void * data = readHdfData(sds_id, dimsizes, datatype);
+      renderData(data, datatype, fillValue, dimsizes[0], dimsizes[1], &min, &max);
+      printf("min: %d, max: %d\n", min, max);
 
-      if (datatype == 21) { // bytes
-        char * data = (char *) readHdfData(sds_id, dimsizes, datatype);
-        for (int y = 0; y < dimsizes[0]; y++) {
-          for (int x = 0; x < dimsizes[1]; x++) {
-            int value = data[(y*dimsizes[0])+x];
-            if (value != fillValue) {
-              printf("#");
-            } else {
-              printf(" ");
-            }
-          }
-          printf("\n");
-        }
-
-        free(data);
-      } else if (datatype == 22) {
-        short * data = (short *) readHdfData(sds_id, dimsizes, datatype);
-        for (int y = 0; y < dimsizes[0]; y++) {
-          for (int x = 0; x < dimsizes[1]; x++) {
-            int value = data[(y*dimsizes[0])+x];
-            if (value != fillValue) {
-              printf("#");
-            } else {
-              printf(" ");
-            }
-          }
-          printf("\n");
-        }
-
-        free(data);
-      } else {
-        printf("ERROR unknown datatype %d\n", datatype);
-        return 1;
-      }
+      free(data);
 
     }
 
