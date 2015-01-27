@@ -1,0 +1,150 @@
+\documentclass[9pt]{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+
+{
+  \usetheme{PaloAlto}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{whale} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+\setbeamertemplate{navigation symbols}{}%remove navigation symbols at bottom
+
+%I had problems compiling doc on X230 without next two lines
+\usepackage{etex}
+\reserveinserts{28}
+%On X530 it worked without problems
+
+%\usepackage[utf8x]{inputenc}
+\input{Preamble.tex}
+%\renewcommand{\baselinestretch}{1.2} %line spacing
+%{\setstretch{1.0}\color{blue} text bla bla } for section strech
+\renewcommand{\footnotesize}{\scriptsize}
+%\usepackage[demo]{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+%for TikZ
+\usepackage[mode=buildnew]{standalone}% requires -shell-escape
+
+
+\title[Appathon]{Locust - Timing is crucial}
+%\author{Dadoes}
+\institute{Dadoes}
+\date{25/01/2015}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+
+\end{frame}
+
+% Uncomment these lines for an automatically generated outline.
+%\begin{frame}{Outline}
+%  \tableofcontents
+%\end{frame}
+
+\section{Application Description}
+
+
+
+\begin{frame}{Introduction}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\textwidth]{pic/madagascar-locust-logo-DSCN9281-EN.jpg}
+		\caption{Locust attack}
+	\end{figure}
+\end{frame}
+
+	
+\begin{frame}{Locust}
+Main risk for food production in Africa and ME, also affecting Asia and Australia. Its timing of the attack not its severity.
+\bigskip
+
+\textbf{Case Study - Madagascar}
+
+	\begin{itemize}
+		\item 13 out of 22m people affected;
+		\item 65\% of 41m hectares of agricultural land;
+	 \end{itemize} 
+	 Since 2013 Food and Agriculture organisation of UN is leading failing attemt to control thread:
+	\begin{itemize}
+		\item 1 025 hours flown for survey operations;
+		\item 1 017 hours for control operations by three helicopters and one fixed-wing aircraft; 
+		\item 28.4m freed 1.3m hectares and lead to pesticide over-spraying;
+		\item This year spraying programme is underfunded by 10.6m; 
+	 \end{itemize}
+ 
+\end{frame}
+
+
+
+\begin{frame}{Solution}
+Using space data we want to indicate areas of hight probability of occurrence (starting location and spread direction).
+
+Forming factors are:
+\begin{itemize}
+	\item eggs in sandy soils and near the sea;
+	\item {heavy rainfall in Nov-Feb leads to overgrown;}
+	\item {Drought conditions create overpopulation;}
+ \end{itemize} 
+Weather conditions affected by:
+\begin{itemize}
+	\item {sea temperature;}
+	\item {cloud, wind;}
+ \end{itemize} 
+ 
+Relevant information can be obtained from LANDSAT and MODIS. For live data we aim to use SENTINEL 2.
+
+\end{frame}
+
+\begin{frame}{System overview}
+
+	\begin{figure} %this is tikZ figure! dont include .tex
+	%	\centering
+		\includestandalone[height=.8\textheight]{pic/SoftwareWorkflow}
+
+		%\caption{Locust attack}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}{Software output - rainy and dry season (NDVI)}
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pic/A2013345.png}
+			\caption{Rainy season}
+			\label{fig:sub1}
+		\end{subfigure}%
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pic/A2014153.png}
+			\caption{Dry season}
+			\label{fig:sub2}
+		\end{subfigure}
+%		\caption{Comparison}
+%		\label{fig:test}
+	\end{figure}
+
+\end{frame}
+
+\begin{frame}{Software output - difference}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.7\textwidth]{pic/diff.png}
+		%\caption{Locust attack}
+	\end{figure}
+\end{frame}
+
+
+\end{document}
